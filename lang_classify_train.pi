@@ -1,0 +1,45 @@
+% Using the low-level NN library
+%
+% main =>
+%	Num_input = 26,
+%	Num_hidden = 13,
+%	Num_output = 3,
+%	Max_epochs = 1000,
+%	Epochs_between_reports = 10,
+%	Desired_error = 0.000001,
+%	bp.pi_fann_create_standard({Num_input, Num_hidden, Num_output}, Ann),
+%	bp.pi_fann_train_on_file(Ann, "frequencies.data", Max_epochs, Epochs_between_reports, Desired_error),
+%	bp.pi_fann_save(Ann, "lang_classify.net", Tmp),
+%	bp.pi_fann_destroy(Ann).
+
+
+% Using the higher-level NN library
+%
+
+import ann.
+
+main => 
+	AnnDef = [
+		$layer(26),
+		$layer(13, [$func(sym_sigmoid)]),
+		$layer(3)
+		],
+
+	TrainOpts = [
+		$train_func(train_rprop),
+		$derror(0.0001),
+		$maxep(200),
+		$report(10)
+		],
+	Ann = nn_train(AnnDef, "frequencies.data", TrainOpts),
+
+	nn_save(Ann, "lang_classify.net"),
+
+	nn_destroy_all(),
+
+	println("Done").
+
+
+
+
+

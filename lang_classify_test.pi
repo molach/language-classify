@@ -1,0 +1,61 @@
+% Using the low-level NN library
+%
+% main =>
+%	bp.pi_fann_create_from_file("lang_classify.net", Ann),
+%	println("Enter the name of the file to test"),
+%	Filename = read_line(stdin),
+%	Frequencies = new_array(26),
+%	generate_frequencies(Filename, Frequencies),
+%	bp.pi_fann_print_connections(Ann),
+%	bp.pi_fann_print_parameters(Ann),
+%	bp.pi_fann_run(Ann, Frequencies, Out),
+%	println("\n\n\n"),
+%	print("English: "), println(Out[1]),
+%	print("French: "), println(Out[2]),
+%	print("Spanish: "), println(Out[3]).
+
+
+import ann.
+
+
+% Using the higher-level NN library
+%
+main =>
+	Ann = nn_load("lang_classify.net"),
+	println("Enter the name of the file to test"),
+	Filename = read_line(stdin),
+	Frequencies = new_array(26),
+	generate_frequencies(Filename, Frequencies),
+	Out = nn_predict(Ann, Frequencies),
+	print("English: "), println(Out[1]),
+	print("French: "), println(Out[2]),
+	print("Spanish: "), println(Out[3]).
+
+
+
+% Fills array "Frequencies" with the frequencies of each of the 
+% 26 letters of the  Latin alphabet. Lowercase and uppercase 
+% letters are counted together, e.g., 'a' and 'A' are treated in
+% the same way.
+generate_frequencies(Filename, Frequencies) =>
+	Infile = open(Filename),
+	Letter_count = new_array(26),
+	foreach(E in Letter_count)
+		E = 0
+	end,
+	Num_chars = 0,
+	Char = read_char(Infile),
+	while(Char != end_of_file)
+		if (ord(Char) >= ord('a') && ord(Char) <= ord('z')) || (ord(Char) >= ord('A') && ord(Char) <= ord('Z')) then
+			Char := to_lowercase(Char),
+			Letter_count[ord(Char) - ord('a') + 1] := Letter_count[ord(Char) - ord('a') + 1] + 1,
+			Num_chars := Num_chars + 1
+		end,
+		Char := read_char(Infile)
+	end,
+	foreach(I in 1..26)
+		Frequencies[I] = Letter_count[I]/Num_chars
+	end,
+	close(Infile).
+
+
